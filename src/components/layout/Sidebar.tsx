@@ -11,6 +11,7 @@ export default function Sidebar() {
     { name: "My Courses", href: "/courses" },
     { name: "Planner", href: "/roadmap" },
     { name: "Advisor Summary", href: "/advisor-summary" },
+    { name: "What-If Analysis", href: "/what-if" },
   ];
 
   const bottomNavItems = [
