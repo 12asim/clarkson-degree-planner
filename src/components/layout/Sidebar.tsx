@@ -10,6 +10,7 @@ export default function Sidebar() {
     { name: "Overview", href: "/" },
     { name: "My Courses", href: "/courses" },
     { name: "Planner", href: "/roadmap" },
+    { name: "Advisor Summary", href: "/advisor-summary" },
   ];
 
   const bottomNavItems = [
