@@ -21,7 +21,7 @@ type Course = {
 };
 
 // Base Template Data
-const ROADMAP_TEMPLATE: Omit<Semester, 'status'>[] = [
+const ROADMAP_TEMPLATE: { id: string; season: string; year: number; courses: Course[] }[] = [
   {
     id: "fall-2023",
     season: "Fall",
@@ -191,7 +191,7 @@ export default function RoadmapPage() {
     let semesterComplete = true;
     let hasWaivedOrCompleted = false;
 
-    const processedCourses = semester.courses.map(course => {
+    const processedCourses: Course[] = semester.courses.map(course => {
       let state: CourseState = 'remaining';
       
       const isCompleted = studentInfo.completed.some(c => sanitizeMatch(course.code, c));
@@ -263,6 +263,11 @@ export default function RoadmapPage() {
 
   const totalRequired = creditsCompleted + creditsInProgress + creditsRemaining; // dynamically ensures matching the exact roadmap sum (120)
 
+  const remainingCoursesCount = finalRoadmap.reduce((acc, sem) => acc + sem.courses.filter(c => c.state === 'remaining' || c.state === 'recommended').length, 0);
+  
+  const nextSemester = finalRoadmap.find(sem => sem.status === 'future');
+  const recommendedCourses = nextSemester?.courses.filter(c => c.state === 'recommended') || [];
+
   // -- RENDER --
   return (
     <div className="px-8 py-10 w-full max-w-5xl mx-auto">
@@ -312,8 +317,30 @@ export default function RoadmapPage() {
               <span>In Progress</span>
             </div>
           </div>
+          <div className="mt-3 pt-3 border-t border-slate-100 flex justify-between text-xs text-slate-500 font-medium">
+            <span>{remainingCoursesCount} courses remaining</span>
+            <span>{creditsRemaining} cr remaining</span>
+          </div>
         </div>
       </div>
+
+      {/* Recommended Next Semester Panel */}
+      {recommendedCourses.length > 0 && (
+        <div className="bg-white border border-slate-200 rounded-xl p-6 mb-12 shadow-sm">
+          <h2 className="text-sm font-medium text-slate-900 mb-4">Recommended Next Semester {nextSemester && <span className="text-slate-500 font-normal">({nextSemester.season} {nextSemester.year})</span>}</h2>
+          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-3">
+            {recommendedCourses.map(c => (
+              <div key={c.code} className="p-3 rounded border border-slate-100 bg-slate-50/50 flex flex-col justify-between hover:border-slate-200 transition-colors">
+                <div className="mb-2">
+                  <span className="font-medium text-sm text-slate-900 block">{c.code}</span>
+                  <span className="text-xs text-slate-500 line-clamp-1" title={c.title}>{c.title}</span>
+                </div>
+                <span className="text-xs font-semibold text-slate-600">{c.credits} cr</span>
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
 
       {/* Roadmap Timeline */}
       <div className="relative">
