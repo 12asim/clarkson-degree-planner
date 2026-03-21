@@ -55,9 +55,9 @@ export default function Home() {
   const completionPercentage = Math.round((creditsCompleted / totalRequired) * 100) || 0;
 
   return (
-    <div className="px-8 py-10 w-full max-w-4xl mx-auto">
+    <div className="px-4 sm:px-8 py-8 sm:py-12 w-full max-w-5xl mx-auto">
       <header className="mb-10">
-        <h1 className="text-2xl font-semibold tracking-tight text-slate-900 mb-1">
+        <h1 className="text-2xl sm:text-3xl font-bold tracking-tight text-slate-900 mb-2">
           Academic Overview
         </h1>
         <p className="text-sm text-slate-500">

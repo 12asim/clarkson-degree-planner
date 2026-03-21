@@ -98,10 +98,10 @@ export default function WhatIfPage() {
   const futureSemesters = roadmap.filter(s => s.status === 'future' || s.status === 'current');
 
   return (
-    <div className="px-8 py-10 w-full max-w-5xl mx-auto space-y-10">
+    <div className="px-4 sm:px-8 py-8 sm:py-12 w-full max-w-5xl mx-auto space-y-10">
       <header className="border-b border-slate-200 pb-8 flex flex-col md:flex-row md:items-end justify-between gap-4">
         <div>
-          <h1 className="text-3xl font-semibold tracking-tight text-slate-900 mb-2">
+          <h1 className="text-2xl sm:text-3xl font-bold tracking-tight text-slate-900 mb-2">
             What-If Simulator
           </h1>
           <p className="text-sm text-slate-500">
@@ -190,8 +190,8 @@ export default function WhatIfPage() {
              <p className="text-sm text-slate-500">No recommended courses. All requirements met!</p>
             )}
             <div className="mt-6 pt-5 border-t border-slate-100">
-              <span className="text-[11px] font-bold text-slate-600 bg-slate-100 px-2.5 py-1 rounded inline-block">
-                {remainingCoursesCount} Total Courses Remaining Let
+              <span className="text-[11px] font-bold text-slate-600 bg-slate-100 px-2.5 py-1 rounded inline-block uppercase tracking-widest">
+                {remainingCoursesCount} Courses Remaining
               </span>
             </div>
           </div>

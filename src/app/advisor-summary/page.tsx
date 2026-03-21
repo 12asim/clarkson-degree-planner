@@ -59,10 +59,10 @@ export default function AdvisorSummaryPage() {
   const completedCoursesCount = allCompletedCodes.size;
 
   return (
-    <div className="px-8 py-10 w-full max-w-4xl mx-auto space-y-12">
-      <header className="border-b border-slate-200 pb-8 flex items-end justify-between">
+    <div className="px-4 sm:px-8 py-8 sm:py-12 w-full max-w-5xl mx-auto space-y-12">
+      <header className="border-b border-slate-200 pb-8 flex flex-col md:flex-row md:items-end justify-between gap-4">
         <div>
-          <h1 className="text-3xl font-semibold tracking-tight text-slate-900 mb-2">
+          <h1 className="text-2xl sm:text-3xl font-bold tracking-tight text-slate-900 mb-2">
             Advisor Summary Report
           </h1>
           <p className="text-sm text-slate-500">
