@@ -7,7 +7,7 @@ export default function Sidebar() {
   const pathname = usePathname();
 
   const navItems = [
-    { name: "Overview", href: "/" },
+    { name: "Overview", href: "/overview" },
     { name: "My Courses", href: "/courses" },
     { name: "Planner", href: "/roadmap" },
     { name: "Advisor Summary", href: "/advisor-summary" },

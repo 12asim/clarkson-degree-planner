@@ -1,127 +1,53 @@
-"use client";
+import Link from 'next/link';
+import { Show } from '@clerk/nextjs';
 
-import React, { useEffect, useState } from 'react';
-import { CS_ROADMAP_TEMPLATE } from '@/data/roadmap';
-import { buildRoadmap, StudentProfile } from '@/utils/planner';
-
-export default function Home() {
-  const [mounted, setMounted] = useState(false);
-  const [studentInfo, setStudentInfo] = useState<StudentProfile>({
-    major: "Computer Science, B.S.",
-    catalogYear: "2024-2025",
-    completed: ["CS 141", "MA 131", "PH 131", "UNIV 190"],
-    waived: ["FY 100"]
-  });
-
-  useEffect(() => {
-    const saved = localStorage.getItem('student-profile');
-    if (saved) {
-      try {
-        const data = JSON.parse(saved);
-        
-        let majorFormatted = "Computer Science, B.S.";
-        if (data.major === 'se') majorFormatted = "Software Engineering, B.S.";
-        if (data.major === 'ce') majorFormatted = "Computer Engineering, B.S.";
-        if (data.major === 'ds') majorFormatted = "Data Science, B.S.";
-
-        let catalogFormatted = "2024-2025";
-        if (data.catalogYear === '23-24') catalogFormatted = "2023-2024";
-        if (data.catalogYear === '22-23') catalogFormatted = "2022-2023";
-
-        setStudentInfo({
-          major: majorFormatted,
-          catalogYear: catalogFormatted,
-          completed: data.completed || [],
-          waived: data.waived || [],
-        });
-      } catch (e) {
-        // use defaults
-      }
-    }
-    setMounted(true);
-  }, []);
-
-  if (!mounted) return <div className="p-8 text-center text-slate-500">Loading overview...</div>;
-
-  const {
-    creditsCompleted,
-    creditsRemaining,
-    totalRequired,
-    remainingCoursesCount,
-    recommendedCourses,
-    nextSemester
-  } = buildRoadmap(studentInfo, CS_ROADMAP_TEMPLATE);
-
-  const completionPercentage = Math.round((creditsCompleted / totalRequired) * 100) || 0;
-
+export default function LandingPage() {
   return (
-    <div className="px-4 sm:px-8 py-8 sm:py-12 w-full max-w-5xl mx-auto">
-      <header className="mb-10">
-        <h1 className="text-2xl sm:text-3xl font-bold tracking-tight text-slate-900 mb-2">
-          Academic Overview
-        </h1>
-        <p className="text-sm text-slate-500">
-          Viewing overview for <span className="font-medium text-slate-700">{studentInfo.major}</span>
-        </p>
-      </header>
+    <div className="flex flex-col items-center justify-center w-full max-w-5xl mx-auto py-16 px-4 sm:px-8 text-center min-h-[80vh]">
+      <div className="inline-flex items-center gap-2 mb-8 bg-green-50 border border-green-200 text-green-800 text-xs font-bold uppercase tracking-widest px-3 py-1 rounded-full shadow-sm">
+        <span className="flex h-2.5 w-2.5 rounded-full bg-green-500 animate-pulse"></span>
+        Clarkson University Unofficial
+      </div>
       
-      <div className="grid gap-6 md:grid-cols-2">
-        {/* Completed Courses */}
-        <div className="rounded-xl border border-slate-200 bg-white p-6 shadow-sm">
-          <div className="flex items-center justify-between mb-4">
-            <h2 className="text-base font-medium text-slate-900">Credits Completed</h2>
-            <span className="text-sm font-medium text-[#004e36] bg-[#004e36]/10 px-2.5 flex items-center h-6 rounded-md">
-              {creditsCompleted} / {totalRequired}
-            </span>
-          </div>
-          <div className="h-2 w-full overflow-hidden rounded-full bg-slate-100 flex shadow-inner">
-            <div className="h-full rounded-full bg-[#004e36]" style={{ width: `${completionPercentage}%` }}></div>
-          </div>
-          <p className="mt-4 text-sm text-slate-500 font-medium">
-            You are {completionPercentage}% of the way to your degree requirements.
-          </p>
-        </div>
-        
-        {/* Remaining Required */}
-        <div className="rounded-xl border border-slate-200 bg-white p-6 shadow-sm">
-          <h2 className="text-base font-medium text-slate-900 mb-4">Remaining Requirements</h2>
-          <div className="space-y-4">
-            <div className="flex justify-between items-center text-sm border-b border-slate-100 pb-3">
-              <span className="text-slate-600">Remaining Credits</span>
-              <span className="font-semibold text-slate-900">{creditsRemaining} cr</span>
-            </div>
-            <div className="flex justify-between items-center text-sm border-b border-slate-100 pb-3">
-              <span className="text-slate-600">Remaining Courses</span>
-              <span className="font-semibold text-slate-900">{remainingCoursesCount}</span>
-            </div>
-            <p className="text-xs text-slate-400 pt-1">
-              View your Planner to see a detailed semester breakdown of these remaining requirements.
-            </p>
-          </div>
-        </div>
+      <h1 className="text-4xl sm:text-6xl font-extrabold tracking-tight text-slate-900 mb-6 drop-shadow-sm">
+        Your Degree, <span className="text-transparent bg-clip-text bg-linear-to-r from-[#004e36] to-green-600">Perfectly Planned.</span>
+      </h1>
+      
+      <p className="text-lg sm:text-xl text-slate-500 max-w-2xl mx-auto mb-10 leading-relaxed">
+        The lightweight degree planning sandbox built specifically for Clarkson students. Experiment with mapping your remaining requirements without the bulk of MyCU.
+      </p>
 
-        {/* Next Semester */}
-        <div className="rounded-xl border border-slate-200 bg-white p-6 shadow-sm md:col-span-2">
-          <h2 className="text-base font-medium text-slate-900 mb-4">
-            Recommended Next Semester {nextSemester && <span className="text-slate-500 font-normal">({nextSemester.season} {nextSemester.year})</span>}
-          </h2>
-          {recommendedCourses.length > 0 ? (
-            <div className="divide-y divide-slate-100 border border-slate-100 rounded-lg overflow-hidden">
-              {recommendedCourses.map((c, i) => (
-                <div key={c.code} className={`flex items-center justify-between p-4 ${i % 2 === 0 ? 'bg-slate-50/50' : 'bg-white'}`}>
-                  <div>
-                    <span className="font-medium text-slate-900 block">{c.code}</span>
-                    <span className="text-sm text-slate-500 line-clamp-1">{c.title}</span>
-                  </div>
-                  <span className="text-sm font-medium text-slate-600 shrink-0 ml-4">{c.credits} cr</span>
-                </div>
-              ))}
-            </div>
-          ) : (
-            <p className="text-sm text-slate-500 p-4 border border-slate-100 rounded-lg text-center bg-slate-50/50">
-              No recommended courses found. You might have finished your degree!
-            </p>
-          )}
+      <div className="flex flex-col sm:flex-row items-center justify-center gap-4 w-full sm:w-auto">
+        <Show when="signed-out">
+          <Link href="/sign-up" className="w-full sm:w-auto px-8 py-3.5 bg-[#004e36] hover:bg-[#003b29] text-white font-semibold rounded-xl text-base shadow-md hover:shadow-lg transition-all active:scale-[0.98]">
+            Get Started
+          </Link>
+          <Link href="/sign-in" className="w-full sm:w-auto px-8 py-3.5 bg-white hover:bg-slate-50 border border-slate-200 text-slate-800 font-semibold rounded-xl text-base shadow-sm hover:shadow transition-all active:scale-[0.98]">
+            Log In Existing
+          </Link>
+        </Show>
+        <Show when="signed-in">
+          <Link href="/overview" className="w-full sm:w-auto px-10 py-3.5 bg-[#004e36] hover:bg-[#003b29] text-white font-bold rounded-xl text-lg shadow-md hover:shadow-lg transition-all active:scale-[0.98]">
+            Go to My Planner →
+          </Link>
+        </Show>
+      </div>
+
+      <div className="mt-24 grid sm:grid-cols-3 gap-8 text-left w-full border-t border-slate-100 pt-16">
+        <div>
+          <div className="h-10 w-10 rounded-lg bg-green-100 text-[#004e36] flex items-center justify-center font-bold mb-4 shadow-sm border border-green-200">1</div>
+          <h3 className="text-lg font-bold text-slate-900 mb-2">Configure Profile</h3>
+          <p className="text-sm text-slate-500 leading-relaxed">Instantly load your catalog year, major requirements, and completed transfer or AP credits.</p>
+        </div>
+        <div>
+          <div className="h-10 w-10 rounded-lg bg-blue-100 text-blue-800 flex items-center justify-center font-bold mb-4 shadow-sm border border-blue-200">2</div>
+          <h3 className="text-lg font-bold text-slate-900 mb-2">Simulate Paths</h3>
+          <p className="text-sm text-slate-500 leading-relaxed">Run real-time what-if simulations to see exactly how adding a minor or failing a prerequisite shifts your timeline.</p>
+        </div>
+        <div>
+          <div className="h-10 w-10 rounded-lg bg-amber-100 text-amber-800 flex items-center justify-center font-bold mb-4 shadow-sm border border-amber-200">3</div>
+          <h3 className="text-lg font-bold text-slate-900 mb-2">Auto-Generate Roadmap</h3>
+          <p className="text-sm text-slate-500 leading-relaxed">Watch as a beautiful, print-ready, semester-by-semester layout is generated predicting exactly when to graduate.</p>
         </div>
       </div>
     </div>
