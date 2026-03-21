@@ -2,124 +2,8 @@
 
 import React, { useEffect, useState } from 'react';
 
-type Semester = {
-  id: string;
-  season: string;
-  year: number;
-  status: 'past' | 'current' | 'future';
-  courses: Course[];
-};
-
-type CourseState = 'completed' | 'in-progress' | 'remaining' | 'recommended' | 'waived';
-
-type Course = {
-  code: string;
-  title: string;
-  credits: number;
-  state: CourseState;
-  grade?: string;
-};
-
-// Base Template Data
-const ROADMAP_TEMPLATE: { id: string; season: string; year: number; courses: Course[] }[] = [
-  {
-    id: "fall-2023",
-    season: "Fall",
-    year: 2023,
-    courses: [
-      { code: "CS 141", title: "Intro to Computer Science I", credits: 4, state: "remaining" },
-      { code: "MA 131", title: "Calculus I", credits: 3, state: "remaining" },
-      { code: "PH 131", title: "Physics I", credits: 4, state: "remaining" },
-      { code: "FY 100", title: "First Year Seminar", credits: 1, state: "remaining" },
-      { code: "UNIV 190", title: "Clarkson Seminar", credits: 3, state: "remaining" },
-    ]
-  },
-  {
-    id: "spring-2024",
-    season: "Spring",
-    year: 2024,
-    courses: [
-      { code: "CS 142", title: "Intro to Computer Science II", credits: 3, state: "remaining" },
-      { code: "MA 132", title: "Calculus II", credits: 3, state: "remaining" },
-      { code: "PH 132", title: "Physics II", credits: 4, state: "remaining" },
-      { code: "KA 101", title: "Knowledge Area Elective", credits: 3, state: "remaining" },
-      { code: "STAT 383", title: "Probability and Statistics", credits: 3, state: "remaining" },
-    ]
-  },
-  {
-    id: "fall-2024",
-    season: "Fall",
-    year: 2024,
-    courses: [
-      { code: "CS 241", title: "Computer Organization", credits: 3, state: "remaining" },
-      { code: "CS 242", title: "Advanced Programming Concepts in Java", credits: 3, state: "remaining" },
-      { code: "MA 211", title: "Foundations of Computer Science", credits: 3, state: "remaining" },
-      { code: "COMM 210", title: "Theory of Rhetoric", credits: 3, state: "remaining" },
-      { code: "KA 102", title: "Knowledge Area Elective", credits: 3, state: "remaining" },
-    ]
-  },
-  {
-    id: "spring-2025",
-    season: "Spring",
-    year: 2025,
-    courses: [
-      { code: "CS 344", title: "Algorithms and Data Structures", credits: 3, state: "remaining" },
-      { code: "CS 350", title: "Software Design and Development", credits: 3, state: "remaining" },
-      { code: "MA 339", title: "Applied Linear Algebra", credits: 3, state: "remaining" },
-      { code: "KA 103", title: "Knowledge Area Elective", credits: 3, state: "remaining" },
-      { code: "FREE 101", title: "Free Elective", credits: 3, state: "remaining" },
-    ]
-  },
-  {
-    id: "fall-2025",
-    season: "Fall",
-    year: 2025,
-    courses: [
-      { code: "CS 341", title: "Programming Languages", credits: 3, state: "remaining" },
-      { code: "CS 345", title: "Automata Theory and Formal Languages", credits: 3, state: "remaining" },
-      { code: "CS 4xx", title: "CS Professional Elective", credits: 3, state: "remaining" },
-      { code: "FREE 102", title: "Free Elective", credits: 3, state: "remaining" },
-      { code: "FREE 103", title: "Free Elective", credits: 3, state: "remaining" },
-    ]
-  },
-  {
-    id: "spring-2026",
-    season: "Spring",
-    year: 2026,
-    courses: [
-      { code: "CS 444", title: "Operating Systems", credits: 3, state: "remaining" },
-      { code: "CS 4xx", title: "CS Professional Elective", credits: 3, state: "remaining" },
-      { code: "KA 104", title: "Knowledge Area Elective", credits: 3, state: "remaining" },
-      { code: "FREE 104", title: "Free Elective", credits: 3, state: "remaining" },
-      { code: "FREE 105", title: "Free Elective", credits: 3, state: "remaining" },
-    ]
-  },
-  {
-    id: "fall-2026",
-    season: "Fall",
-    year: 2026,
-    courses: [
-      { code: "CS 4xx", title: "CS Professional Elective", credits: 3, state: "remaining" },
-      { code: "KA 105", title: "Knowledge Area Elective", credits: 3, state: "remaining" },
-      { code: "KA 106", title: "Knowledge Area / Univ Elective", credits: 3, state: "remaining" },
-      { code: "FREE 106", title: "Free Elective", credits: 3, state: "remaining" },
-      { code: "FREE 107", title: "Free Elective", credits: 3, state: "remaining" },
-    ]
-  },
-  {
-    id: "spring-2027",
-    season: "Spring",
-    year: 2027,
-    courses: [
-      { code: "CS 499", title: "Professional Experience", credits: 0, state: "remaining" },
-      { code: "CS 4xx", title: "CS Professional Elective", credits: 3, state: "remaining" },
-      { code: "FREE 108", title: "Free Elective", credits: 3, state: "remaining" },
-      { code: "FREE 109", title: "Free Elective", credits: 3, state: "remaining" },
-      { code: "FREE 110", title: "Free Elective", credits: 3, state: "remaining" },
-      { code: "FREE 111", title: "Free Elective", credits: 2, state: "remaining" },
-    ]
-  }
-];
+import { CourseState, Semester, Course, CS_ROADMAP_TEMPLATE } from '@/data/roadmap';
+import { buildRoadmap } from '@/utils/planner';
 
 function StateBadge({ state, grade }: { state: CourseState; grade?: string }) {
   switch (state) {
@@ -176,97 +60,16 @@ export default function RoadmapPage() {
   if (!mounted) return <div className="p-8 text-center text-slate-500">Loading roadmap...</div>;
 
   // -- DYNAMIC CALCULATION --
-  let creditsCompleted = 0;
-  let creditsInProgress = 0;
-  let creditsRemaining = 0;
-
-  const sanitizeMatch = (target: string, query: string) => {
-    const t = target.replace(/\s+/g, '').toUpperCase();
-    const q = query.replace(/\s+/g, '').toUpperCase();
-    // Match if exact code, or target code starts with query (e.g. Free Elective matching FREE)
-    return t === q || t.startsWith(q);
-  };
-
-  const tempRoadmap = ROADMAP_TEMPLATE.map(semester => {
-    let semesterComplete = true;
-    let hasWaivedOrCompleted = false;
-
-    const processedCourses: Course[] = semester.courses.map(course => {
-      let state: CourseState = 'remaining';
-      
-      const isCompleted = studentInfo.completed.some(c => sanitizeMatch(course.code, c));
-      const isWaived = studentInfo.waived.some(c => sanitizeMatch(course.code, c));
-
-      if (isCompleted) {
-        state = 'completed';
-        hasWaivedOrCompleted = true;
-      } else if (isWaived) {
-        state = 'waived';
-        hasWaivedOrCompleted = true;
-      } else {
-        state = 'remaining';
-        semesterComplete = false;
-      }
-
-      return { ...course, state };
-    });
-
-    return { ...semester, semesterComplete, hasWaivedOrCompleted, courses: processedCourses };
-  });
-
-  // Assign Past/Current/Future states
-  let foundCurrent = false;
-  
-  const finalRoadmap: Semester[] = tempRoadmap.map(sem => {
-    let status: 'past' | 'current' | 'future' = 'future';
-
-    if (sem.semesterComplete && sem.hasWaivedOrCompleted) {
-      status = 'past';
-    } else if (!sem.semesterComplete && !foundCurrent) {
-      status = 'current';
-      foundCurrent = true;
-      // Current semester courses that are remaining become in-progress
-      sem.courses.forEach(c => {
-        if (c.state === 'remaining') c.state = 'in-progress';
-      });
-    }
-
-    return { id: sem.id, season: sem.season, year: sem.year, status, courses: sem.courses };
-  });
-
-  // Next future semester gets 'recommended' class
-  let foundFuture = false;
-  for (const sem of finalRoadmap) {
-    if (sem.status === 'future' && !foundFuture && foundCurrent) {
-      foundFuture = true;
-      sem.courses.forEach(c => {
-        if (c.state === 'remaining') c.state = 'recommended';
-      });
-    } else if (sem.status === 'future' && !foundFuture && !foundCurrent) {
-      // Edge case: all 0 courses taken, so first semester is future logically but should be current
-      // handled implicitly though, because if 0 courses, !sem.semesterComplete fires the 'current' block on 1st sem.
-      foundFuture = true;
-      sem.courses.forEach(c => {
-        if (c.state === 'remaining') c.state = 'recommended';
-      });
-    }
-  }
-
-  // Tally credits
-  finalRoadmap.forEach(sem => {
-    sem.courses.forEach(c => {
-      if (c.state === 'completed' || c.state === 'waived') creditsCompleted += c.credits;
-      else if (c.state === 'in-progress') creditsInProgress += c.credits;
-      else creditsRemaining += c.credits;
-    });
-  });
-
-  const totalRequired = creditsCompleted + creditsInProgress + creditsRemaining; // dynamically ensures matching the exact roadmap sum (120)
-
-  const remainingCoursesCount = finalRoadmap.reduce((acc, sem) => acc + sem.courses.filter(c => c.state === 'remaining' || c.state === 'recommended').length, 0);
-  
-  const nextSemester = finalRoadmap.find(sem => sem.status === 'future');
-  const recommendedCourses = nextSemester?.courses.filter(c => c.state === 'recommended') || [];
+  const {
+    roadmap: finalRoadmap,
+    creditsCompleted,
+    creditsInProgress,
+    creditsRemaining,
+    totalRequired,
+    remainingCoursesCount,
+    nextSemester,
+    recommendedCourses
+  } = buildRoadmap(studentInfo, CS_ROADMAP_TEMPLATE);
 
   // -- RENDER --
   return (
