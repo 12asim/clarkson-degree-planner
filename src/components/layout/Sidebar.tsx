@@ -8,6 +8,7 @@ export default function Sidebar() {
 
   const navItems = [
     { name: "Overview", href: "/" },
+    { name: "My Courses", href: "/courses" },
     { name: "Planner", href: "/roadmap" },
   ];
 
